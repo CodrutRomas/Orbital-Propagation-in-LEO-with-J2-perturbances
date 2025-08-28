@@ -1,3 +1,5 @@
+from dis import code_info
+
 import numpy as np
 import math
 from constants import EARTH_MU, DEG_TO_RAD, RAD_TO_DEG
@@ -29,7 +31,7 @@ class OrbitalElements:
         #1. Solve Kepler's equation
         E = self.solve_kepler_equation()
         #2. Calculate true anomaly
-        nu = 2 * math.atan(math.sqrt((1 + self.e)/1 - self.e) * math.tan(E / 2))
+        nu = 2 * math.atan(math.sqrt((1 + self.e)/(1 - self.e)) * math.tan(E / 2))
         #3. Distance from Earth's center
         r = self.a * (1 - self.e * math.cos(E))
         #4. Position in orbital plane
@@ -37,7 +39,7 @@ class OrbitalElements:
         y = r * math.sin(nu)
         z = 0.0 #Because it's seen in 2D
         #5. Velocity in orbital plane
-        h = math.sqrt(EARTH_MU * self.a(1 - self.e ** 2)) #Angular momentum
+        h = math.sqrt(EARTH_MU * self.a*(1 - self.e ** 2)) #Angular momentum
         vx = -(EARTH_MU / h) * math.sin(nu)
         vy = (EARTH_MU / h) * (self.e + math.cos(nu))
         vz = 0.0
@@ -46,3 +48,27 @@ class OrbitalElements:
         velocity = self._rotate_to_inertial([vx, vy, vz])
 
         return np.array(position), np.array(velocity)
+
+    def _rotate_to_inertial(self, vector):
+        x, y, z = vector
+        #1. Rotation on Z-axis R3(-ω)
+        cos_w = math.cos(-self.perigee)
+        sin_w = math.sin(-self.perigee)
+        x1 = cos_w * x - sin_w * y
+        y1 = sin_w * x + cos_w * y
+        z1 = z
+        #2. Rotation on X-axis R1(-i)
+        cos_i = math.cos(-self.i)
+        sin_i = math.sin(-self.i)
+        x2 = x1
+        y2 = cos_i * y - sin_i * z
+        z2 = sin_i * y + cos_i * z
+        #3. Rotation on Z-axis R3(-Ω)
+        cos_raan = math.cos(-self.raan)
+        sin_raan = math.sin(-self.raan)
+        x3 = cos_raan * x - sin_raan * y
+        y3 = sin_raan * x + cos_raan * y
+        z3 = z2
+
+        return [x3, y3, z3]
+

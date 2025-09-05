@@ -68,4 +68,10 @@ The orbital mechanics theory and mathematical formulations implemented in this p
 1. "Introduction to Orbital Mechanics" from Colorado Pressbook, available at : https://colorado.pressbooks.pub/introorbitalmechanics/
 2. "Fundamentals of Astrodynamics and Applications" - David A. Vallado, Comprehensive perturbation theory and numerical methods
 3. "Orbital Mechanics for Engineering Students" -  Howard D. Curtis, Mathematical foundations and practical applications
- 
+   
+### **Key Mathematical Models:**
+- **Classical Orbital Elements** - six-parameter orbit description
+- **Kepler's Equation** - relating mean, eccentric, and true anomalies
+- **J2 Secular Theory** - long-term orbital evolution due to Earth's oblateness
+- **Atmospheric Density Models** - exponential and empirical atmospheric representations
+- **Third-Body Perturbation Theory** - simplified circular orbit models for Sun and Moon

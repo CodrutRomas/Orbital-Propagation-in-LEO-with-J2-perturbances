@@ -66,8 +66,9 @@ This project provides a complete orbital mechanics simulation toolkit featuring:
 ## Theoretical Background
 The orbital mechanics theory and mathematical formulations implemented in this project are based off of:
 1. "Introduction to Orbital Mechanics" from Colorado Pressbook, available at : https://colorado.pressbooks.pub/introorbitalmechanics/
-2. "Fundamentals of Astrodynamics and Applications" - David A. Vallado, Comprehensive perturbation theory and numerical methods
-3. "Orbital Mechanics for Engineering Students" -  Howard D. Curtis, Mathematical foundations and practical applications
+   - Chapters 3, 6, 9, and 10* particularly relevant to this implementation
+3. "Fundamentals of Astrodynamics and Applications" - David A. Vallado, Comprehensive perturbation theory and numerical methods
+4. "Orbital Mechanics for Engineering Students" -  Howard D. Curtis, Mathematical foundations and practical applications
    
 ### **Key Mathematical Models:**
 - **Classical Orbital Elements** - six-parameter orbit description

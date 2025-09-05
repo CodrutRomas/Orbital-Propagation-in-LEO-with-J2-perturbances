@@ -1,20 +1,14 @@
 # Orbital Propagation with Perturbation
- A Python implementation of orbital mechanics featuring full-scale orbital propagation from Low Earth Orbit (LEO) to Geostationary (GEO) with comprehensive perturbation modeling and real-time 3D visualization.
- (Originally was only LEO and J2 but updated to full scale orbits with more perturbations)
+- A Python implementation of orbital mechanics featuring full-scale orbital propagation from Low Earth Orbit (LEO) to Geostationary (GEO) with comprehensive perturbation modeling and real-time 3D visualization.
+- (Originally was only LEO and J2 but updated to full scale orbits with more perturbations)
 ## Overview
 This project provides a complete orbital mechanics simulation toolkit featuring:
 
-- Full-scale orbital propagation (LEO, MEO, GEO, HEO, and beyond)
-- Comprehensive J2 perturbations
-- Advanced atmospheric drag modeling with altitude-dependent density
-- Third-body perturbations (Sun and Moon)
-- Real-time 3D orbital visualization with temporal gradient trails
-- Enhanced ground track mapping with day/night cycle
-- Interactive satellite coverage analysis
-- High-precision numerical integration with adaptive algorithms
-  
-## Perturbation Models
- 
+- **Real-time 3D orbital visualization** with temporal gradient trails
+- **Analytical and numerical propagation** methods
+- **Enhanced ground track mapping** with day/night cycle visualization
+- **Multiple perturbation models** for realistic satellite behavior
+   
 ## Orbital Elements
 - a - Semi-major axis (km)
 - e - Eccentricity

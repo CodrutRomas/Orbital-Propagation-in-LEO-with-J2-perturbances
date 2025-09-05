@@ -38,31 +38,53 @@ This project provides a complete orbital mechanics simulation toolkit featuring:
 - Solar Position Tracking
 ![Untitleddesign1-ezgif com-crop](https://github.com/user-attachments/assets/45183aa7-8371-435e-9198-27b79dc8a1ad)
 
-## Supported Orbital Regimes
+##  Implemented Perturbation Models
 
-  Low Earth Orbit (LEO): 160-2000 km
-- ISS-type orbits (~400 km altitude)
-- Sun-synchronous polar orbits
-- CubeSat constellations
-- Earth observation missions
+### **Atmospheric Perturbations**
 
-  Medium Earth Orbit (MEO): 2000-35,786 km
-- GPS constellation (~20200 km)
-- Galileo navigation system
-- GLONASS positioning
-- Regional navigation systems
+#### **J2 Perturbations**
+- **Earth's oblateness effects** - most significant perturbation for LEO satellites
+- **Nodal regression** - RAAN precession rate calculation
+- **Apsidal precession** - Argument of perigee rotation
+- **Modified mean motion** - J2-corrected orbital period
+- **Analytical propagation** using secular rate theory
+- **Critical for sun-synchronous orbits**
+  
+#### **Advanced Atmospheric Drag**
+- **Multi-layer atmospheric model** (9 atmospheric layers from troposphere to exosphere)
+- **Altitude-dependent density** with exponential decay models
+- **Solar activity effects** using F10.7 solar flux index
+- **Diurnal variations** - day/night density changes
+- **Latitudinal effects** - polar vs equatorial density variations
+- **Geomagnetic activity** influence via Ap index
+- **Earth rotation effects** - relative velocity calculations
 
-  Geostationary Earth Orbit (GEO): 35,786 km
-- Communication satellites
-- Weather monitoring platforms
-- Broadcasting systems
-- Earth surveillance missions
+**Supported Altitude Ranges:**
+- **LEO (160-2000 km)**: Significant drag effects with orbital decay
+- **MEO (2000-35,786 km)**: Minimal but measurable atmospheric effects
+- **GEO (35,786+ km)**: Negligible atmospheric interactions
 
-  Highly Elliptical Orbits (HEO)
-- Molniya orbits (12-hour period)
-- Tundra orbits (24-hour period)
-- Scientific missions
+###  **Solar Radiation Pressure**
 
+#### **Direct Solar Pressure**
+- **Area-to-mass ratio** dependency
+- **Solar flux variations** based on F10.7 index
+- **Distance-dependent intensity** (inverse square law)
+
+### **Third-Body Perturbations**
+
+#### **Solar Gravitational Effects**
+- **Sun gravitational perturbations** using simplified circular orbit model
+- **Direct and indirect acceleration** components
+- **Time-dependent sun position** calculations
+- **Significant for high-altitude orbits** (MEO, GEO)
+
+#### **Lunar Gravitational Effects**
+- **Moon gravitational perturbations** with orbital inclination effects
+- **27.32-day lunar period** modeling
+- **Moon position calculation** relative to Earth
+- **Combined Sun-Moon effects** for comprehensive third-body modeling
+  
 ## Theoretical Background
 The orbital mechanics theory and mathematical formulations implemented in this project are based off of:
 1. "Introduction to Orbital Mechanics" from Colorado Pressbook, available at : https://colorado.pressbooks.pub/introorbitalmechanics/

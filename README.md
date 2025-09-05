@@ -15,8 +15,4 @@ A Python implementation of orbital mechanics focusing on Low Earth Orbit (LEO) s
 ## Theoretical Background
 The orbital mechanics theory and mathematical formulations implemented in this project are based on:
 "Introduction to Orbital Mechanics" from Colorado Pressbook, available at : https://colorado.pressbooks.pub/introorbitalmechanics/
-
-
-
-https://github.com/user-attachments/assets/b6d5cb0c-349c-4cb0-8ee8-e34732895eea
-
+![Untitled design](https://github.com/user-attachments/assets/2bad3dc9-ddc4-4bb1-a7c6-23b39908f55f)

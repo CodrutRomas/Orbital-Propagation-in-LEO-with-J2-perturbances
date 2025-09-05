@@ -93,3 +93,5 @@ The orbital mechanics theory and mathematical formulations implemented in this p
 - **J2 Secular Theory** - long-term orbital evolution due to Earth's oblateness
 - **Atmospheric Density Models** - exponential and empirical atmospheric representations
 - **Third-Body Perturbation Theory** - simplified circular orbit models for Sun and Moon
+- **Runge-Kutta 4th Order** integration for state propagation
+  

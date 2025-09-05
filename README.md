@@ -29,7 +29,7 @@ This project provides a complete orbital mechanics simulation toolkit featuring:
 
  The ground track visualizer provides comprehensive satellite coverage analysis with realistic Earth mapping and advanced environmental modeling.
 - Day/Night Cycle Modeling
-- Coverage Analysis Tools
+- Synced with the orbit visualiser
 - Solar Position Tracking
 ![Untitleddesign1-ezgif com-crop](https://github.com/user-attachments/assets/45183aa7-8371-435e-9198-27b79dc8a1ad)
 

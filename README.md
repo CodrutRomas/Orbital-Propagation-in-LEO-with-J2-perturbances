@@ -25,17 +25,17 @@ This project provides a complete orbital mechanics simulation toolkit featuring:
 ## Orbit Visualizer
 
   The orbital visualizer provides real-time 3D visualization of satellite trajectories with rendering capabilities
--Full-scale orbital propagation
--Comprehensive perturbation modeling
--Real-time Parameter Display
+- Full-scale orbital propagation
+- Comprehensive perturbation modeling
+- Real-time Parameter Display
 ![Untitleddesign2-ezgif com-crop (1)](https://github.com/user-attachments/assets/1c086ad5-abe0-4af2-a723-df26b3d4772b)
 
 ## Ground Track Visualizer
 
  The ground track visualizer provides comprehensive satellite coverage analysis with realistic Earth mapping and advanced environmental modeling.
--Day/Night Cycle Modeling
--Coverage Analysis Tools
--Core Mapping Features
+- Day/Night Cycle Modeling
+- Coverage Analysis Tools
+- Core Mapping Features
 ![Untitleddesign1-ezgif com-crop](https://github.com/user-attachments/assets/45183aa7-8371-435e-9198-27b79dc8a1ad)
 
 ## Supported Orbital Regimes

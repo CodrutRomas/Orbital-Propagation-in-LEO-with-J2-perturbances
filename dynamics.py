@@ -9,18 +9,69 @@ from constants import EARTH_RADIUS, J2, EARTH_NU, OMEGA_EARTH
 from J2_perturbations import J2Perturbations
 from atmospheric_density import AtmosphericModel
 from orbital_elements import OrbitalElements
+from third_body_perturbations import combined_third_body_acceleration
+from solar_radiation_pressure import srp_perturbation_cannonball
 
 
 class OrbitalDynamics:
+
+    # --- Perturbation models ---
+    def solar_radiation_pressure_acceleration(self, position: np.ndarray, velocity: np.ndarray, time_seconds: float) -> np.ndarray:
+        if not getattr(self, 'include_srp', False):
+            return np.zeros(3)
+        
+        # Convert position from km to m for SRP module
+        position_m = position * 1000
+        velocity_m = velocity * 1000  # m/s
+        time_hours = time_seconds / 3600
+        
+        satellite_params = {
+            'mass': self.mass,
+            'cross_section': self.area,
+            'reflectivity': self.Cr
+        }
+        
+        # Get F10.7 from atmospheric model
+        f107 = self.atmosphere.f107_current if hasattr(self, 'atmosphere') else 120.0
+        
+        # Get SRP acceleration in m/s²
+        a_srp_m = srp_perturbation_cannonball(position_m, velocity_m, time_hours, satellite_params, f107)
+        
+        # Convert back to km/s²
+        return a_srp_m * 1e-3
+
+    def third_body_acceleration(self, position: np.ndarray, time_seconds: float) -> np.ndarray:
+        if not getattr(self, 'include_third_bodies', False):
+            return np.zeros(3)
+        
+        # Convert position from km to m for third-body module
+        position_m = position * 1000
+        time_hours = time_seconds / 3600
+        
+        # Get third-body acceleration in m/s²
+        a_third_body_m = combined_third_body_acceleration(position_m, time_hours)
+        
+        # Convert back to km/s²
+        return a_third_body_m * 1e-3
+
     def __init__(self, include_drag: bool = True, drag_coefficient: float = 2.2,
-                 satellite_mass: float = 1.0, cross_sectional_area: float = 1.0):
+                 satellite_mass: float = 1.0, cross_sectional_area: float = 1.0,
+                 include_srp: bool = False, reflectivity_coefficient: float = 1.3,
+                 include_third_bodies: bool = False, include_sun: bool = True, include_moon: bool = True):
         self.include_drag = include_drag
         self.Cd = drag_coefficient
         self.mass = satellite_mass
         self.area = cross_sectional_area
 
-        #Initialize atmospheric model if drag is enabled
-        if self.include_drag:
+        # SRP and third-body flags
+        self.include_srp = include_srp
+        self.Cr = reflectivity_coefficient
+        self.include_third_bodies = include_third_bodies
+        self.include_sun = include_sun
+        self.include_moon = include_moon
+
+        #Initialize atmospheric model if drag or SRP is enabled (both need F10.7)
+        if self.include_drag or self.include_srp:
             self.atmosphere = AtmosphericModel()
 
     def gravitational_acceleration(self, position: np.ndarray) -> np.ndarray:
@@ -57,7 +108,7 @@ class OrbitalDynamics:
         return np.array([ax_j2, ay_j2, az_j2])
 
     def atmospheric_drag_acceleration(self, position: np.ndarray,
-                                      velocity: np.ndarray) -> np.ndarray:
+                                      velocity: np.ndarray, time_seconds: float = 0.0) -> np.ndarray:
         #Calculate atmospheric drag acceleration
         if not self.include_drag:
             return np.zeros(3)
@@ -69,8 +120,8 @@ class OrbitalDynamics:
         if altitude > 1000:
             return np.zeros(3)
 
-        #Get atmospheric density
-        density = self.atmosphere.get_density(altitude)  #kg/m³
+        #Get atmospheric density with time variation
+        density = self.atmosphere.density(position, time_seconds)  #kg/m³
 
         #Calculate relative velocity (account for Earth's rotation)
         earth_rot_vel = np.array([
@@ -87,49 +138,44 @@ class OrbitalDynamics:
             return np.zeros(3)
 
         #Drag acceleration: a_drag = -0.5 * ρ * Cd * A * v_rel² / m * v̂_rel
-        #Convert units: km/s² = (kg/m³) * (m²) * (km/s)² / kg
+        #Unit analysis: [kg/m³] * [m²] * [km/s]² / [kg] = [m²/s²] = [km²/s²] * 1e-6
         drag_coef = -0.5 * density * self.Cd * self.area / self.mass
-        drag_magnitude = drag_coef * v_rel_magnitude ** 2 * 1e-9  # Convert m²→km²
+        drag_magnitude = drag_coef * (v_rel_magnitude ** 2) * 1e3  # Convert using (km/s)^2 -> m^2/s^2 (1e6) and m/s^2 -> km/s^2 (1e-3) => 1e3
 
         #Drag direction opposite to relative velocity
         drag_direction = v_rel / v_rel_magnitude
 
         return drag_magnitude * drag_direction
 
-    def total_acceleration(self, state: np.ndarray) -> np.ndarray:
+    def total_acceleration(self, state: np.ndarray, time_seconds: float = 0.0) -> np.ndarray:
         #Calculate total acceleration from all perturbations
 
         position = state[:3]
         velocity = state[3:]
 
         #Sum all accelerations
-        a_grav = self.gravitational_acceleration(position)
-        a_j2 = self.j2_acceleration(position)
-        a_drag = self.atmospheric_drag_acceleration(position, velocity)
+        a = np.zeros(3)
+        a += self.gravitational_acceleration(position)
+        a += self.j2_acceleration(position)
+        a += self.atmospheric_drag_acceleration(position, velocity, time_seconds)
+        a += self.third_body_acceleration(position, time_seconds)
+        a += self.solar_radiation_pressure_acceleration(position, velocity, time_seconds)
+        return a
 
-        return a_grav + a_j2 + a_drag
-
-    def state_derivative(self, state: np.ndarray) -> np.ndarray:
-        #Calculate state derivative for numerical integration
-
-
-
+    def state_derivative(self, state: np.ndarray, time_seconds: float) -> np.ndarray:
+        #Calculate state derivative for numerical integration with time-dependent forces
         position = state[:3]
         velocity = state[3:]
-        acceleration = self.total_acceleration(state)
-
+        acceleration = self.total_acceleration(state, time_seconds)
         # State derivative: [velocity, acceleration]
         return np.concatenate([velocity, acceleration])
 
-    def rk4_step(self, state: np.ndarray, dt: float) -> np.ndarray:
-        #Single Runge-Kutta 4th order integration step
-        #RK4 coefficients
-        k1 = dt * self.state_derivative(state)
-        k2 = dt * self.state_derivative(state + k1 / 2)
-        k3 = dt * self.state_derivative(state + k2 / 2)
-        k4 = dt * self.state_derivative(state + k3)
-
-        #RK4 update
+    def rk4_step(self, state: np.ndarray, dt: float, t: float) -> np.ndarray:
+        #Single Runge-Kutta 4th order integration step with time-dependent acceleration
+        k1 = dt * self.state_derivative(state, t)
+        k2 = dt * self.state_derivative(state + k1 / 2, t + dt / 2)
+        k3 = dt * self.state_derivative(state + k2 / 2, t + dt / 2)
+        k4 = dt * self.state_derivative(state + k3, t + dt)
         return state + (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
     def propagate_orbit(self, initial_elements: OrbitalElements,
@@ -151,18 +197,20 @@ class OrbitalDynamics:
         #Initial conditions
         times[0] = 0.0
         states[0] = initial_state
-        accelerations[0] = self.total_acceleration(initial_state)
+        accelerations[0] = self.total_acceleration(initial_state, 0.0)
 
         #Numerical integration loop
         current_state = initial_state.copy()
+        current_time = 0.0
         for i in range(num_steps):
             #RK4 integration step
-            current_state = self.rk4_step(current_state, time_step_seconds)
-
+            current_state = self.rk4_step(current_state, time_step_seconds, current_time)
+            # Advance time
+            current_time += time_step_seconds
             #Store results
-            times[i + 1] = (i + 1) * time_step_seconds
+            times[i + 1] = current_time
             states[i + 1] = current_state
-            accelerations[i + 1] = self.total_acceleration(current_state)
+            accelerations[i + 1] = self.total_acceleration(current_state, current_time)
 
         return {
             'times': times / 3600,  #Convert to hours

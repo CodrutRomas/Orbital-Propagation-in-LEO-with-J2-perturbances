@@ -21,10 +21,11 @@ class OrbitalElements:
             f = E - self.e * math.sin(E) - self.mean_anomaly
             df_dE = 1 - self.e * math.cos(E)
             if abs(df_dE) < 1e-15:
-                E_new = E-f/df_dE
-                if abs(E_new - E) < tolerance:
-                    return E_new
-                E = E_new
+                break  # Derivative too small, avoid division by zero
+            E_new = E - f/df_dE
+            if abs(E_new - E) < tolerance:
+                return E_new
+            E = E_new
         return E
 
     def to_cartesian(self):
